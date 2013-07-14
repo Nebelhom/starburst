@@ -22,6 +22,13 @@ Special Starburst:
     - Slow motion movement for 5 seconds
     - Speed up explosion
     - Score deductions
+
+Number of explosions available could vary, too...
+
+Brainstorming on saving level information. What needs to be in there?
+
+    - a list of all the moving objects and their respective details
+    - level information such as if there is a blockade in the way or not
 """
 
 # TODO:
@@ -31,13 +38,15 @@ Special Starburst:
 # Create a mouseclick explosion (TICK)
 # Create a collision detector. Collide with other Starburst and all is good, Collide with explosion and be converted
 # -> maybe method for conversion...
+# Implement difficulty levels by giving fractions of real gravity and speed to make it all slower...
+# (*0.25, 0.5, 0.75 and 1.0)
 
-import math
 import pygame
 
 from datetime import datetime
 from pygame.locals import *
-from random import random, randint, uniform
+
+from levels import *
 
 pygame.init()
 
@@ -48,9 +57,6 @@ pygame.init()
 # and give all other vectors and magnitudes in meters
 
 
-#GRAVITY = 10  # m per s
-GRAVITY = GRAVITY_DIR, GRAVITY_STR = (math.pi, 10)
-
 # key: value = width: px/m
 # used as scaling factor
 CONVERSIONS = {
@@ -60,115 +66,9 @@ CONVERSIONS = {
     1280: 100
 }
 
-class MovingObject:
-    def __init__(self, screen, (x, y), speed, angle, scaling_factor):
-        """
-        screen: pygame surface instance
-        (x, y): coordinates in pixels
-        speed: in meters/second
-        angle: in radians
-        scaling_factor: Conversion factor from meters to pixels for speed
-        """
-
-        # Outside Factors
-        self.screen = screen
-        self.scaling = scaling_factor
-
-        # Object intrinsic attributes
-        self.x, self.y = x, y
-        self.size = 10
-        self.color = (255, 255, 255)
-        self.speed = speed
-        # self.angle in radians from 0 to math.pi*2
-        self.angle = angle
-        self.alive = True
-
-    def display(self):
-        if self.alive:
-            pygame.draw.circle(self.screen, self.color, (int(self.x), int(self.y)), self.size)
-
-    def move(self, time):
-        """
-        Calculates the new position, speed and direction of the Starburst
-
-        time: time passed since last loop
-        start_time: time at which simulation starts
-        """
-        if self.alive:
-            time /= 1000.0
-            self.angle, self.speed = addVectors((self.angle, self.speed), (GRAVITY_DIR, GRAVITY_STR * time))
-            self.x += math.sin(self.angle) * self.speed * time * self.scaling
-            self.y -= math.cos(self.angle) * self.speed * time * self.scaling
-
-            # Below floor = kill it
-            if self.y > self.screen.get_width() + self.size:
-                self.alive = False
-
-    def bounce(self):
-        """
-        Lets the Starburst bounce from the side walls.
-        """
-        width = self.screen.get_width()
-        if self.x > width - self.size:
-            self.x = 2 * (width - self.size) - self.x
-            self.angle = -self.angle
-        elif self.x < self.size:
-            self.x = 2 * self.size - self.x
-            self.angle = -self.angle
-
-class Starburst(MovingObject):
-    """
-    The Starburst class that gets fired into the air and can
-    explode.
-    """
-    def __init__(self, time_of_creation, *args, **kwargs):
-        """
-        time_of_creation: Gives time when it should start, in seconds
-        """
-        MovingObject.__init__(self, *args, **kwargs)
-
-        self.toc = time_of_creation
-
-    def move(self, time, cur_time):
-        """
-        Calculates the new position, speed and direction of the Starburst
-
-        time: time passed since last loop
-        start_time: time at which simulation starts
-        """
-        if cur_time >= self.toc and self.alive:
-            time /= 1000.0
-            self.angle, self.speed = addVectors((self.angle, self.speed), (GRAVITY_DIR, GRAVITY_STR * time))
-            self.x += math.sin(self.angle) * self.speed * time * self.scaling
-            self.y -= math.cos(self.angle) * self.speed * time * self.scaling
-
-            # Below floor = kill it
-            if self.y > self.screen.get_width() + self.size:
-                self.alive = False
-
-class Explosion(MovingObject):
-    def __init__(self, max_size=20, *args, **kwargs):
-
-        MovingObject.__init__(self, *args, **kwargs)
-
-        self.color = 255, 0, 0
-        self.size = 1
-        self.max_size = max_size
-
-    def display(self):
-        if self.alive:
-            pygame.draw.circle(self.screen, self.color, (int(self.x), int(self.y)), self.size, 1)
-
-    def explode(self):
-        if self.size > self.max_size:
-            self.alive = False
-        else:
-            self.size += 2
-
-
 class Game:
     def __init__(self, dimensions=(640, 480), bg_color=(0, 0, 0),
-                 simulation_time=10.0, caption="Starburst"):
+                 caption="Starburst"):
 
         self.dimensions = self.width, self.height = dimensions
         self.bg_color = bg_color
@@ -179,24 +79,36 @@ class Game:
         pygame.display.set_caption(self.caption)
         self.clock = pygame.time.Clock()
 
+        self.bs = self.height + 20
+        # "Below Screen", of course! What did you think it meant?
+
+    def read_game_params(self, lvl_dict):
         # simulation time in seconds
-        self.simulation_time = simulation_time
+        self.simulation_time = lvl_dict['Game']['sim_time']
 
-    def create_bursts(self, num_bursts):
-        bursts = []
-        for i in range(num_bursts):
-            burst = Starburst(uniform(0.0, self.simulation_time - 5),
-                              self.screen,(randint(20, self.width - 20),
-                                           self.height + 20),15,
-                              uniform(-math.pi/4, math.pi/4),
-                              CONVERSIONS[self.width])
-            bursts.append(burst)
-        return bursts
+    def read_bursts(self, lvl_dict):
+        self.bursts = []
+        for mo in lvl_dict['MovingObjects']:
+            mobj = mo['type']['class'](
+                mo['type']['colour'],
+                mo['toc'],
+                self.screen,
+                (mo['posx'], self.bs),
+                mo['angle'],
+                mo['type']['size'],
+                mo['type']['speed'],
+                CONVERSIONS[self.width]
+            )
+            self.bursts.append(mobj)
 
-    def main(self):
+    def read_lvl(self, lvl_dict):
+        self.read_game_params(lvl_dict)
+        self.read_bursts(lvl_dict)
+
+    def main(self, lvl):
         start = datetime.now()
 
-        bursts = self.create_bursts(3)
+        self.read_lvl(lvl)
         explosions = []
 
         mainloop = True
@@ -209,9 +121,15 @@ class Game:
                     mainloop = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouseX, mouseY = pygame.mouse.get_pos()
-                    exp = Explosion(40, self.screen,(mouseX, mouseY), 15,
-                                    uniform(-math.pi/4, math.pi/4),
-                                    CONVERSIONS[self.width])
+                    exp = Explosion(
+                        reg_starburst['exp_max_size'],
+                        self.screen,
+                        (mouseX, mouseY),
+                        0.0,  # angle
+                        1,  # size
+                        15,  # speed
+                        CONVERSIONS[self.width]
+                    )
                     explosions.append(exp)
 
             # Redraw the background
@@ -219,14 +137,13 @@ class Game:
 
             cur_time = (datetime.now() - start).total_seconds()
 
-            for burst in bursts:
+            for burst in self.bursts:
                 # Update and redraw all circles
                 burst.move(time_passed, cur_time)
                 burst.bounce()
                 burst.display()
-                #print bursts
                 if not burst.alive:
-                    bursts.remove(burst) # No more calculations
+                    self.bursts.remove(burst)  # No more calculations
 
             for exp in explosions:
                 exp.explode()
@@ -236,23 +153,13 @@ class Game:
 
             pygame.display.flip()
 
-            if cur_time > self.simulation_time:
-                # Should restart the simulation
+            if cur_time > self.simulation_time and self.bursts == []:
                 start = datetime.now()
-                bursts = self.create_bursts(3)
+                self.read_bursts(lvl)
 
-######################
-## Global Functions ##
-######################
-
-def addVectors((angle1, length1), (angle2, length2)):
-    x = math.sin(angle1) * length1 + math.sin(angle2) * length2
-    y = math.cos(angle1) * length1 + math.cos(angle2) * length2
-
-    length = math.hypot(x, y)
-    angle = 0.5 * math.pi - math.atan2(y, x)
-    return (angle, length)
+                for burst in self.bursts:
+                    burst.alive = True  # Revive them
 
 if __name__ == '__main__':
     game = Game()
-    game.main()
+    game.main(lvl0)
