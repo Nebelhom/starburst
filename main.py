@@ -3,9 +3,14 @@
 """
 Several objects are fired into the air at random times and fall down to earth.
 
+Game Mechanics Possibilty 1
 At a time of the players chosing, he can press a button whenever and wherever he likes.
 This will create an explosion (a radius). Every object that touches it, will also explode
 (different radius for different objects).
+
+Game Mechanics Possibilty 2 (Tendency goes to this one. Seems simpler...)
+The player sees a simulation of what is happening and can then decide where to
+place a certain amount of charges and decides on clicking, when to detonate them.
 
 From the first explosion, it will be counted how many other objects have been exploded
 incrementing the score.
@@ -66,10 +71,18 @@ CONVERSIONS = {
     1280: 100
 }
 
+# This is a factor 
+DIFFICULTY = {
+    'easy': 0.25,
+    'medium': 0.5,
+    'hard': 0.75,
+    'nightmare': 1.0
+}
+
 class Game:
     def __init__(self, dimensions=(640, 480), bg_color=(0, 0, 0),
                  caption="Starburst"):
-
+        
         self.dimensions = self.width, self.height = dimensions
         self.bg_color = bg_color
         self.caption = caption

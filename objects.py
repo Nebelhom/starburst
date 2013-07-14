@@ -1,42 +1,4 @@
 #!/usr/bin/env python
-
-"""
-Several objects are fired into the air at random times and fall down to earth.
-
-At a time of the players chosing, he can press a button whenever and wherever he likes.
-This will create an explosion (a radius). Every object that touches it, will also explode
-(different radius for different objects).
-
-From the first explosion, it will be counted how many other objects have been exploded
-incrementing the score.
-
-Ideally, free style with random stuff mode and afterwards some kinda levels.
-
-Different types of Starbursts
-
-three different sizes for three different explosion radii (the smaller one get more points)
-
-Special Starburst:
-    - No explosion and extra points
-    - Freeze movement for 2 seconds
-    - Slow motion movement for 5 seconds
-    - Speed up explosion
-    - Score deductions
-
-Brainstorming on saving level information. What needs to be in there?
-
-    - a list of all the moving objects and their respective details
-    - level information such as if there is a blockade in the way or not
-"""
-
-# TODO:
-# Kill the Starburst when it is below the floor (TICK)
-# Create an infinite simulation loop that repeats the same simulation again and again.(TICK)
-# Consider reading in specific values from a dictionary for each "level" (Fine for now. Do so when the mechanics work)
-# Create a mouseclick explosion (TICK)
-# Create a collision detector. Collide with other Starburst and all is good, Collide with explosion and be converted
-# -> maybe method for conversion...
-
 import math
 import pygame
 
@@ -56,8 +18,9 @@ class MovingObject:
         """
         screen: pygame surface instance
         (x, y): coordinates in pixels
-        speed: in meters/second
         angle: in radians
+        size: in pixels
+        speed: in meters/second
         scaling_factor: Conversion factor from meters to pixels for speed
         """
 
@@ -157,7 +120,7 @@ class Explosion(MovingObject):
         if self.size > self.max_size:
             self.alive = False
         else:
-            self.size += 2
+            self.size += 3
 
 ######################
 ## Global Functions ##

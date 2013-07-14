@@ -31,13 +31,34 @@ self.toc = time_of_creation
 # Game() of main.py
 
 # definitions of objects
+small_starburst = {
+    'class': Starburst,
+    'colour': (255, 255, 255),
+    'size': 5,
+    'speed': 15,
+    'exp_max_size': 20,
+    'score': 100
+}
+
 reg_starburst = {
     'class': Starburst,
     'colour': (255, 255, 255),
     'size': 10,
     'speed': 15,
-    'exp_max_size': 40
+    'exp_max_size': 40,
+    'score': 50
 }
+
+large_starburst = {
+    'class': Starburst,
+    'colour': (255, 255, 255),
+    'size': 15,
+    'speed': 15,
+    'exp_max_size': 60,
+    'score': 25
+}
+
+
 
 lvl0 = {'Game': {
             'sim_time': 4.0
