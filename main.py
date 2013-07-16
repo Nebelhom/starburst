@@ -3,11 +3,6 @@
 """
 Several objects are fired into the air at random times and fall down to earth.
 
-Game Mechanics Possibilty 1
-At a time of the players chosing, he can press a button whenever and wherever he likes.
-This will create an explosion (a radius). Every object that touches it, will also explode
-(different radius for different objects).
-
 Game Mechanics Possibilty 2 (Tendency goes to this one. Seems simpler...)
 The player sees a simulation of what is happening and can then decide where to
 place a certain amount of charges and decides on clicking, when to detonate them.
@@ -138,6 +133,7 @@ class Main(object):
                     mainloop = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouseX, mouseY = pygame.mouse.get_pos()
+                    # self.add_explosive(mouseX, mouseY)
                     exp = Explosion(
                         reg_starburst['exp_max_size'],
                         self.screen,
