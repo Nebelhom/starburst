@@ -55,7 +55,23 @@ class MovingObject:
 
         distance = math.hypot(dx, dy)
         if distance < self.size + other.size:
-            print "Bang!"
+            # Calculate new direction after collision
+            tangent = math.atan2(dy, dx)
+            self.angle = 2 * tangent - self.angle
+            other.angle = 2 * tangent - other.angle
+            
+            # Exchange speeds
+            (self.speed, other.speed) = (other.speed, self.speed)
+            
+            # Make sure that objects do not overlap after collision
+            # avoids objects sticking to one another
+            angle = 0.5 * math.pi + tangent # Calculate angle between objects
+            
+            # Move objects along angle away from each other
+            self.x += math.sin(angle)
+            self.y -= math.cos(angle)
+            other.x -= math.sin(angle)
+            other.y += math.cos(angle)
 
     def display(self):
         if self.alive:
