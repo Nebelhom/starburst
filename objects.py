@@ -37,6 +37,26 @@ class MovingObject:
         # self.angle in radians from 0 to math.pi*2
         self.x, self.y = x, y
 
+    def bounce(self):
+        """
+        Lets the Starburst bounce from the side walls.
+        """
+        width = self.screen.get_width()
+        if self.x > width - self.size:
+            self.x = 2 * (width - self.size) - self.x
+            self.angle = -self.angle
+        elif self.x < self.size:
+            self.x = 2 * self.size - self.x
+            self.angle = -self.angle
+
+    def collide(self, other):
+        dx = self.x - other.x
+        dy = self.y - other.y
+
+        distance = math.hypot(dx, dy)
+        if distance < self.size + other.size:
+            print "Bang!"
+
     def display(self):
         if self.alive:
             pygame.draw.circle(self.screen, self.colour, (int(self.x), int(self.y)), self.size)
@@ -57,18 +77,6 @@ class MovingObject:
             # Below floor = kill it
             if self.y > self.screen.get_width() + self.size:
                 self.alive = False
-
-    def bounce(self):
-        """
-        Lets the Starburst bounce from the side walls.
-        """
-        width = self.screen.get_width()
-        if self.x > width - self.size:
-            self.x = 2 * (width - self.size) - self.x
-            self.angle = -self.angle
-        elif self.x < self.size:
-            self.x = 2 * self.size - self.x
-            self.angle = -self.angle
 
 class Starburst(MovingObject):
     """
@@ -104,6 +112,10 @@ class Starburst(MovingObject):
                 self.alive = False
 
 class Explosion(MovingObject):
+    """
+    Represents an explosion
+    """
+    # When hitting side wall let go to the middle but no further, i.e. overwrite bounce
     def __init__(self, max_size=20, *args, **kwargs):
 
         MovingObject.__init__(self, *args, **kwargs)

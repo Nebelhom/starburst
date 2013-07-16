@@ -61,6 +61,8 @@ pygame.init()
 # Therefore create a conversion factor specific for each resolution
 # and give all other vectors and magnitudes in meters
 
+# This will be adjusted later to automatically recognise certain resolutions
+DIMENSIONS = (640, 480)
 
 # key: value = width: px/m
 # used as scaling factor
@@ -80,7 +82,7 @@ DIFFICULTY = {
 }
 
 class Main(object):
-    def __init__(self, dimensions=(640, 480), bg_color=(0, 0, 0),
+    def __init__(self, dimensions=DIMENSIONS, bg_color=(0, 0, 0),
                  caption="Starburst"):
         
         self.dimensions = self.width, self.height = dimensions
@@ -139,8 +141,8 @@ class Main(object):
                         self.screen,
                         (mouseX, mouseY),
                         0.0,  # angle
-                        1,  # size
-                        15,  # speed
+                        1,    # size
+                        15,   # speed
                         CONVERSIONS[self.width]
                     )
                     explosions.append(exp)
@@ -150,10 +152,13 @@ class Main(object):
 
             cur_time = (datetime.now() - start).total_seconds()
 
-            for burst in self.bursts:
+            for i, burst in enumerate(self.bursts):
                 # Update and redraw all circles
                 burst.move(time_passed, cur_time)
                 burst.bounce()
+                # Collision detection
+                for burst2 in self.bursts[i+1:]:
+                    burst.collide(burst2)
                 burst.display()
                 if not burst.alive:
                     self.bursts.remove(burst)  # No more calculations
@@ -175,4 +180,4 @@ class Main(object):
 
 if __name__ == '__main__':
     game = Main()
-    game.run_simulation(lvl0)
+    game.run_simulation(lvl_test1)

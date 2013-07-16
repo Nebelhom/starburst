@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from objects import *
+from main import DIMENSIONS
 
 """
 Moving Objects
@@ -29,13 +30,14 @@ self.toc = time_of_creation
 
 # Note if posy not given, then it is a point just below the screen defined in
 # Game() of main.py
+WIDHT, HEIGHT = DIMENSIONS
 
 # definitions of objects
 small_starburst = {
     'class': Starburst,
     'colour': (255, 255, 255),
     'size': 5,
-    'speed': 15,
+    'speed': 16,
     'exp_max_size': 20,
     'score': 100
 }
@@ -53,14 +55,14 @@ large_starburst = {
     'class': Starburst,
     'colour': (255, 255, 255),
     'size': 15,
-    'speed': 15,
+    'speed': 13,
     'exp_max_size': 60,
     'score': 25
 }
 
 
 
-lvl0 = {'Game': {
+lvl_test0 = {'Game': {
             'sim_time': 4.0
         },
         'MovingObjects': [
@@ -70,4 +72,29 @@ lvl0 = {'Game': {
             'type': reg_starburst,
             'toc': 1.0,
         }]
+}
+
+lvl_test1 = {'Game': {
+            'sim_time': 4.0
+        },
+        'MovingObjects': [
+        {
+            'angle': 0.5,
+            'posx': 100,
+            'type': reg_starburst,
+            'toc': 1.0,
+        },
+        {
+            'angle': -0.5,
+            'posx': WIDHT-100,
+            'type': small_starburst,
+            'toc': 1.0,
+        },
+        {
+            'angle': 0.0,
+            'posx': WIDHT / 2,
+            'type': large_starburst,
+            'toc': 1.0,
+        }
+        ]
 }
