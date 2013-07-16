@@ -101,13 +101,15 @@ class Starburst(MovingObject):
     There should be three different types: small, regular, large;
     They will vary in size, speed and explosion radius
     """
-    def __init__(self, colour, time_of_creation, *args, **kwargs):
+    def __init__(self, colour, exp_max_size, score, time_of_creation, *args, **kwargs):
         """
         time_of_creation: Gives time when it should start, in seconds
         """
         MovingObject.__init__(self, *args, **kwargs)
 
         self.colour = colour
+        self.exp_max_size = exp_max_size
+        self.score = score
         self.toc = time_of_creation
 
     def move(self, time, cur_time):
@@ -137,8 +139,37 @@ class Explosion(MovingObject):
         MovingObject.__init__(self, *args, **kwargs)
 
         self.color = 255, 0, 0
-        self.size = 1
         self.max_size = max_size
+
+    def collide(self, other):
+        """
+        Detects a collision with a Starburst or related.
+        If detected, returns True, else False
+        """
+        dx = self.x - other.x
+        dy = self.y - other.y
+
+        distance = math.hypot(dx, dy)
+        if distance < self.size + other.size:
+            # Calculate new direction after collision
+            tangent = math.atan2(dy, dx)
+            #self.angle = 2 * tangent - self.angle
+            other.angle = 2 * tangent - other.angle
+            
+            # Exchange speeds
+            #(self.speed, other.speed) = (other.speed, self.speed)
+            
+            # Make sure that objects do not overlap after collision
+            # avoids objects sticking to one another
+            angle = 0.5 * math.pi + tangent # Calculate angle between objects
+            
+            # Move objects along angle away from each other
+            #self.x += math.sin(angle)
+            #self.y -= math.cos(angle)
+            other.x -= math.sin(angle)
+            other.y += math.cos(angle)
+            return True
+        return False
 
     def display(self):
         if self.alive:

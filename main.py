@@ -106,6 +106,8 @@ class Main(object):
         for mo in lvl_dict['MovingObjects']:
             mobj = mo['type']['class'](
                 mo['type']['colour'],
+                mo['type']['exp_max_size'],
+                mo['type']['score'],
                 mo['toc'],
                 self.screen,
                 (mo['posx'], self.bs),
@@ -165,6 +167,21 @@ class Main(object):
 
             for exp in explosions:
                 exp.explode()
+                # Collision detection
+                for burst in self.bursts:
+                    contact = exp.collide(burst)
+                    if contact:
+                        new_exp = Explosion(
+                            burst.exp_max_size,
+                            self.screen,
+                            (burst.x, burst.y),
+                            burst.angle,
+                            burst.size,
+                            burst.speed,
+                            CONVERSIONS[self.width]
+                        )
+                        explosions.append(new_exp)
+                        self.bursts.remove(burst)
                 exp.display()
                 if not exp.alive:
                     explosions.remove(exp)
