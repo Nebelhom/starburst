@@ -144,7 +144,7 @@ class Main(object):
                         (mouseX, mouseY),
                         0.0,  # angle
                         1,    # size
-                        15,   # speed
+                        0,   # speed
                         CONVERSIONS[self.width]
                     )
                     explosions.append(exp)
@@ -167,9 +167,12 @@ class Main(object):
 
             for exp in explosions:
                 exp.explode()
+                exp.move(time_passed)
+                exp.bounce()
                 # Collision detection
                 for burst in self.bursts:
                     contact = exp.collide(burst)
+                    # Checks for contact and converts burst to explosion
                     if contact:
                         new_exp = Explosion(
                             burst.exp_max_size,

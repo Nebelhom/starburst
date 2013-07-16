@@ -41,6 +41,8 @@ class MovingObject:
         """
         Lets the Starburst bounce from the side walls.
         """
+        # See this excellent tutorial on this
+        # http://www.petercollingridge.co.uk/pygame-physics-simulation/boundaries
         width = self.screen.get_width()
         if self.x > width - self.size:
             self.x = 2 * (width - self.size) - self.x
@@ -140,6 +142,15 @@ class Explosion(MovingObject):
 
         self.color = 255, 0, 0
         self.max_size = max_size
+
+    def bounce(self):
+        """
+        Once the explosion centre reaches the wall it will stop moving in
+        this direction.
+        """
+        width = self.screen.get_width()
+        if self.x > width - (self.size / 2)  or self.x < (self.size / 2):
+            self.speed = 0
 
     def collide(self, other):
         """
