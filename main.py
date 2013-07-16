@@ -79,7 +79,7 @@ DIFFICULTY = {
     'nightmare': 1.0
 }
 
-class Game:
+class Main(object):
     def __init__(self, dimensions=(640, 480), bg_color=(0, 0, 0),
                  caption="Starburst"):
         
@@ -118,7 +118,7 @@ class Game:
         self.read_game_params(lvl_dict)
         self.read_bursts(lvl_dict)
 
-    def main(self, lvl):
+    def run_simulation(self, lvl):
         start = datetime.now()
 
         self.read_lvl(lvl)
@@ -174,5 +174,5 @@ class Game:
                     burst.alive = True  # Revive them
 
 if __name__ == '__main__':
-    game = Game()
-    game.main(lvl0)
+    game = Main()
+    game.run_simulation(lvl0)
