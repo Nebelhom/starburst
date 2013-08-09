@@ -193,6 +193,12 @@ class Main(object):
 
                 for burst in self.bursts:
                     burst.alive = True  # Revive them
+    
+    def run_startmenu(self):
+        pass
+
+    def main(self):
+        pass
 
 if __name__ == '__main__':
     game = Main()
