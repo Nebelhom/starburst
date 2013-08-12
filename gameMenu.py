@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import sys
+
 import pygame
 from pygame.constants import KEYDOWN, QUIT, K_ESCAPE, MOUSEMOTION
 from pygame.locals import *
@@ -22,10 +24,16 @@ then if 'Quit': choices['Quit']()
 elif 'Start': choices['Start']()
 
 ...at least see if that works
+
+
+Write on is_selection
 """
 
 class GameMenu():
-    def __init__(self, screen, bg_color=(0,0,0), font='Arial', font_size=30, font_color=(255,255,255), menu_items=('Start', 'Settings', 'Quit')):
+    def __init__(self, screen, bg_color=(0,0,0), font=None, font_size=30,
+                 font_color=(255,255,255),
+                 menu_items=('Start', 'Settings', 'Quit')):
+
         self.screen = screen
         self.scr_width = self.screen.get_rect().width
         self.scr_height = self.screen.get_rect().height
@@ -37,21 +45,49 @@ class GameMenu():
         self.font_color = font_color
 
         self.items = []
-        for item in menu_items:
+        for index, item in enumerate(menu_items):
             label = self.font.render(item, 1, font_color)
             width = label.get_rect().width
             height = label.get_rect().height
-            self.items.append([label, width, height])
+            posx = (self.scr_width / 2) - (width / 2)
+            t_h = len(menu_items) * height # t_h total_height
+            posy = (self.scr_height / 2) - (t_h / 2) + (index * height)
+            self.items.append([label, (width, height), (posx, posy), item])
 
-        self.sum_item_height = len(menu_items) * self.items[0][2]
+        self.funcs = {
+            'Start': self.start,
+            'Settings': self.settings,
+            'Quit': sys.exit
+        }
 
     def insert_menu_items(self):
-        for index, item in enumerate(self.items):
-            label, width, height = item
-            posx = (self.scr_width/2) - (width/2)
-            posy = (self.scr_height/2) - (self.sum_item_height/2 + (index * height))
-            self.screen.blit(label,(posx, posy))
+        for item in self.items:
+            label, dimensions, (posx, posy), name = item
+            self.screen.blit(label, (posx, posy))
 
+    def is_selection(self, posx, posy, item):
+        """
+        Takes an item and checks if the coordinates of item coincide
+
+        posx - integer value
+        posy - integer value
+        item - list of label, (width, height), (posx, posy)
+        where:
+            label  - pygame.font class
+            width  - integer
+            height - integer
+            posx   - integer
+            posy   - integer
+        """
+        if (posx >= item[2][0] and posx <= item[2][0] + item[1][0]) and \
+                    (posy >= item[2][1] and posy <= item[2][1] + item[1][1]):
+                return True
+        return False
+
+    def mark_selection(self, topleft, dimensions):
+        """Draws a rectangle around the selected text"""
+        self.select = pygame.draw.rect(self.screen, (255, 255, 255),
+                                       pygame.Rect(topleft, dimensions), 1)
 
     def run(self):
         """Creates the mainloop of the simulation"""
@@ -64,14 +100,31 @@ class GameMenu():
                 if event.type == pygame.QUIT:
                     mainloop = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouseX, mouseY = pygame.mouse.get_pos()
+                    mx, my = pygame.mouse.get_pos()
+                    for item in self.items:
+                        if self.is_selection(mx, my, item):
+                            self.funcs[item[-1]]()
 
             # Redraw the background
             self.screen.fill(self.bg_color)
 
+            # Find mouse pos and mark selection if any
+            mx, my = pygame.mouse.get_pos()
+            for item in self.items:
+                if self.is_selection(mx, my, item):
+                    self.mark_selection(item[2], item[1])
+
+
+            # Redraws the menu items
             self.insert_menu_items()
 
             pygame.display.flip()
+
+    def start(self):
+        print "Start!"
+
+    def settings(self):
+        print "Settings!"
 
 
 class Main(object):
@@ -105,5 +158,5 @@ if __name__ == "__main__":
 
     bg_color = (0,0,0)
 
-    gm = GameMenu(screen, bg_color)
+    gm = GameMenu(screen, bg_color, font='Ubuntu')
     gm.run()
