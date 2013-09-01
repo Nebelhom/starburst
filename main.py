@@ -41,11 +41,15 @@ Brainstorming on saving level information. What needs to be in there?
 # Implement difficulty levels by giving fractions of real gravity and speed to make it all slower...
 # (*0.25, 0.5, 0.75 and 1.0)
 
+import sys
+
 import pygame
 
 from datetime import datetime
+from _functools import partial
 from pygame.locals import *
 
+from gameMenu import GameMenu
 from levels import *
 
 pygame.init()
@@ -131,6 +135,7 @@ class Main(object):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     mainloop = False
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouseX, mouseY = pygame.mouse.get_pos()
                     # self.add_explosive(mouseX, mouseY)
@@ -140,10 +145,14 @@ class Main(object):
                         (mouseX, mouseY),
                         0.0,  # angle
                         1,    # size
-                        0,   # speed
+                        0,    # speed
                         CONVERSIONS[self.width]
                     )
                     explosions.append(exp)
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        mainloop = False
 
             # Redraw the background
             self.screen.fill(self.bg_color)
@@ -198,8 +207,15 @@ class Main(object):
         pass
 
     def main(self):
-        pass
+        menu_items = ('Start', 'Quit')
+        funcs = {
+            'Start': partial(self.run_simulation, lvl_test1),
+            'Quit': sys.exit
+        }
+        self.gm = GameMenu(self.screen, menu_items, funcs, self.bg_color,
+                           'Ubuntu')
+        self.gm.run()
 
 if __name__ == '__main__':
     game = Main()
-    game.run_simulation(lvl_test1)
+    game.main()

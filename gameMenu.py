@@ -1,38 +1,14 @@
 #!/usr/bin/python
 
 import sys
-
 import pygame
-from pygame.constants import KEYDOWN, QUIT, K_ESCAPE, MOUSEMOTION
-from pygame.locals import *
 
 pygame.init()
 
 
-"""
-Create menu from screen input given in Main
-
-Choices and effects are connected via functions in dict.
-
-e.g. choices = {
-                'Quit': sys.exit,
-                'Start': Game().run
-}
-
-then if 'Quit': choices['Quit']()
-
-elif 'Start': choices['Start']()
-
-...at least see if that works
-
-
-Write on is_selection
-"""
-
 class GameMenu():
-    def __init__(self, screen, bg_color=(0,0,0), font=None, font_size=30,
-                 font_color=(255,255,255),
-                 menu_items=('Start', 'Settings', 'Quit')):
+    def __init__(self, screen, menu_items, funcs, bg_color=(0,0,0), font=None,
+                 font_size=30, font_color=(255,255,255)):
 
         self.screen = screen
         self.scr_width = self.screen.get_rect().width
@@ -54,15 +30,10 @@ class GameMenu():
             posy = (self.scr_height / 2) - (t_h / 2) + (index * height)
             self.items.append([label, (width, height), (posx, posy), item])
 
-        self.funcs = {
-            'Start': self.start,
-            'Settings': self.settings,
-            'Quit': sys.exit
-        }
+        self.funcs = funcs
 
     def insert_menu_items(self):
-        for item in self.items:
-            label, dimensions, (posx, posy), name = item
+        for label, dimensions, (posx, posy), name in self.items:
             self.screen.blit(label, (posx, posy))
 
     def is_selection(self, posx, posy, item):
@@ -120,12 +91,6 @@ class GameMenu():
 
             pygame.display.flip()
 
-    def start(self):
-        print "Start!"
-
-    def settings(self):
-        print "Settings!"
-
 
 class Main(object):
     def __init__(self, dimensions=(640, 480), bg_color=(0, 0, 0),
@@ -158,5 +123,5 @@ if __name__ == "__main__":
 
     bg_color = (0,0,0)
 
-    gm = GameMenu(screen, bg_color, font='Ubuntu')
+    gm = GameMenu(screen, ('Start', 'Quit'), bg_color, font='Ubuntu')
     gm.run()
