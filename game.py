@@ -52,22 +52,24 @@ pygame.init()
 # see settings.py
 
 class Game(object):
-    def __init__(self, screen, bg_color):
+    def __init__(self, screen, bg_color, font="None", font_size=20, font_color=WHITE):
 
         self.screen = screen
+        self.posx, self.posy, self.width, self.height = self.screen.get_rect()
         self.clock = pygame.time.Clock()
         self.bg_color = bg_color
-
-        self.posx, self.posy, self.width, self.height = self.screen.get_rect()
-
-        self.bs = self.height + 20
         # "Below Screen", of course! What did you think it meant?
+        self.bs = self.height + 20
 
         self.score = 0
         # time is defined on loading level
-        self.time = None
+        self.time = 0
         # defined on loading level using dict.get(key, None)
         self.num_charges = None
+
+        # text font
+        self.font_color = font_color
+        self.font = pygame.font.SysFont(font, font_size)
 
         # Game variables
         self.bursts = []
@@ -79,42 +81,29 @@ class Game(object):
 
     def draw_static_text(self):
         """Displays score and time countdown in top right corner"""
-        pass
 
-    def read_game_params(self, lvl_dict):
-        # simulation time in seconds
-        self.simulation_time = lvl_dict['Game']['sim_time']
+        # Create the text
+        self.s_text = "Score: %d" % (self.score)
+        self.score_text = self.font.render(self.s_text, 0, (255, 255, 255))
+        self.t_text = "Time left: %.2f" % (self.time)
+        self.time_text = self.font.render(self.t_text, 0, (255, 255, 255))
 
-    def read_bursts(self, lvl_dict):
-        for mo in lvl_dict['MovingObjects']:
-            mobj = mo['type']['class'](
-                mo['type']['colour'],
-                mo['type']['exp_max_size'],
-                mo['type']['score'],
-                mo['toc'],
-                self.screen,
-                (mo['posx'], self.bs),
-                mo['angle'],
-                mo['type']['size'],
-                mo['type']['speed'],
-                CONVERSIONS[self.width]
-            )
-            self.bursts.append(mobj)
+        # Bring it to the screen
+        self.screen.blit(self.score_text, (0, 0))
+        height_diff = self.score_text.get_rect()[3]
+        self.screen.blit(self.time_text, (0, height_diff))
 
-    def read_lvl(self, lvl_dict):
-        self.read_game_params(lvl_dict)
-        self.read_bursts(lvl_dict)
-
-    def redraw(self, cur_time, time_passed):
+    def draw_the_action(self, cur_time, time_passed):
         # Redraw the background
         self.screen.fill(self.bg_color)
+        self.draw_static_text()
 
         for i, burst in enumerate(self.bursts):
             # Update and redraw all circles
             burst.move(time_passed, cur_time)
             burst.bounce()
             # Collision detection
-            for burst2 in self.bursts[i+1:]:
+            for burst2 in self.bursts[i + 1:]:
                 burst.collide(burst2)
             burst.display()
             if not burst.alive:
@@ -146,11 +135,37 @@ class Game(object):
 
         pygame.display.flip()
 
+    def read_game_params(self, lvl_dict):
+        # simulation time in seconds
+        self.simulation_time = lvl_dict['Game']['sim_time']
+
+    def read_bursts(self, lvl_dict):
+        for mo in lvl_dict['MovingObjects']:
+            mobj = mo['type']['class'](
+                mo['type']['colour'],
+                mo['type']['exp_max_size'],
+                mo['type']['score'],
+                mo['toc'],
+                self.screen,
+                (mo['posx'], self.bs),
+                mo['angle'],
+                mo['type']['size'],
+                mo['type']['speed'],
+                CONVERSIONS[self.width]
+            )
+            self.bursts.append(mobj)
+
+    def read_lvl(self, lvl_dict):
+        self.read_game_params(lvl_dict)
+        self.read_bursts(lvl_dict)
+
     def run_simulation(self, lvl):
+        self.score_text = self.font.render("Score: %d" % (self.score), 0,
+                                           self.font_color)
         start = datetime.now()
 
         self.read_lvl(lvl)
-        explosions = []
+        self.time = self.simulation_time
 
         mainloop = True
         while mainloop:
@@ -160,27 +175,14 @@ class Game(object):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     mainloop = False
-                """
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouseX, mouseY = pygame.mouse.get_pos()
-                    # self.add_explosive(mouseX, mouseY)
-                    exp = Explosion(
-                        reg_starburst['exp_max_size'],
-                        self.screen,
-                        (mouseX, mouseY),
-                        0.0,  # angle
-                        1,    # size
-                        0,    # speed
-                        CONVERSIONS[self.width]
-                    )
-                    explosions.append(exp)
-                """
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         mainloop = False
 
             self.cur_time = (datetime.now() - start).total_seconds()
-            self.redraw(self.cur_time, time_passed)
+            # Adjust simulation time
+            self.time = self.simulation_time - self.cur_time
+            self.draw_the_action(self.cur_time, time_passed)
 
             if self.cur_time > self.simulation_time and self.bursts == []:
                 start = datetime.now()
