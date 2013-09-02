@@ -212,8 +212,7 @@ class Main(object):
             'Start': partial(self.run_simulation, lvl_test1),
             'Quit': sys.exit
         }
-        self.gm = GameMenu(self.screen, menu_items, funcs, self.bg_color,
-                           'Ubuntu')
+        self.gm = GameMenu(self.screen, menu_items, funcs, self.bg_color)
         self.gm.run()
 
 if __name__ == '__main__':

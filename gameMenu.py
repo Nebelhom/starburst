@@ -5,11 +5,45 @@ import pygame
 
 pygame.init()
 
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLACK = (0, 0, 0)
+
+class MenuItem(pygame.font.Font):
+    def __init__(self, text, font=None, font_size=30,
+                 font_color=WHITE, (pos_x, pos_y)=(0, 0)):
+
+        pygame.font.Font.__init__(self, font, font_size)
+        self.text = text
+        self.font_size = font_size
+        self.font_color = font_color
+        self.label = self.render(self.text, 1, self.font_color)
+        self.width = self.label.get_rect().width
+        self.height = self.label.get_rect().height
+        self.dimensions = (self.width, self.height)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.position = pos_x, pos_y
+
+    def is_mouse_selection(self, (posx, posy)):
+        if (posx >= self.pos_x and posx <= self.pos_x + self.width) and \
+            (posy >= self.pos_y and posy <= self.pos_y + self.height):
+                return True
+        return False
+
+    def set_position(self, x, y):
+        self.position = (x, y)
+        self.pos_x = x
+        self.pos_y = y
+
+    def set_font_color(self, rgb_tuple):
+        self.font_color = rgb_tuple
+        self.label = self.render(self.text, 1, self.font_color)
+
 
 class GameMenu():
-    def __init__(self, screen, menu_items, funcs, bg_color=(0,0,0), font=None,
-                 font_size=30, font_color=(255,255,255)):
-
+    def __init__(self, screen, items, funcs, bg_color=BLACK, font=None, font_size=30,
+                 font_color=WHITE):
         self.screen = screen
         self.scr_width = self.screen.get_rect().width
         self.scr_height = self.screen.get_rect().height
@@ -17,111 +51,120 @@ class GameMenu():
         self.bg_color = bg_color
         self.clock = pygame.time.Clock()
 
-        self.font = pygame.font.SysFont(font, font_size)
-        self.font_color = font_color
-
-        self.items = []
-        for index, item in enumerate(menu_items):
-            label = self.font.render(item, 1, font_color)
-            width = label.get_rect().width
-            height = label.get_rect().height
-            posx = (self.scr_width / 2) - (width / 2)
-            t_h = len(menu_items) * height # t_h total_height
-            posy = (self.scr_height / 2) - (t_h / 2) + (index * height)
-            self.items.append([label, (width, height), (posx, posy), item])
-
         self.funcs = funcs
+        self.items = []
+        for index, item in enumerate(items):
+            menu_item = MenuItem(item, font, font_size, font_color)
 
-    def insert_menu_items(self):
-        for label, dimensions, (posx, posy), name in self.items:
-            self.screen.blit(label, (posx, posy))
+            # t_h: total height of text block
+            t_h = len(items) * menu_item.height
+            pos_x = (self.scr_width / 2) - (menu_item.width / 2)
+            pos_y = (self.scr_height / 2) - (t_h / 2) + (index * menu_item.height)
 
-    def is_selection(self, posx, posy, item):
+            menu_item.set_position(pos_x, pos_y)
+            self.items.append(menu_item)
+
+        self.mouse_is_visible = True
+        self.cur_item = None
+
+    def set_mouse_visibility(self):
+        if self.mouse_is_visible:
+            pygame.mouse.set_visible(True)
+        else:
+            pygame.mouse.set_visible(False)
+
+    def set_keyboard_selection(self, key):
         """
-        Takes an item and checks if the coordinates of item coincide
-
-        posx - integer value
-        posy - integer value
-        item - list of label, (width, height), (posx, posy)
-        where:
-            label  - pygame.font class
-            width  - integer
-            height - integer
-            posx   - integer
-            posy   - integer
+        Marks the MenuItem chosen via up and down keys.
         """
-        if (posx >= item[2][0] and posx <= item[2][0] + item[1][0]) and \
-                    (posy >= item[2][1] and posy <= item[2][1] + item[1][1]):
-                return True
-        return False
+        for item in self.items:
+            # Return all to neutral
+            item.set_italic(False)
+            item.set_font_color(WHITE)
 
-    def mark_selection(self, topleft, dimensions):
-        """Draws a rectangle around the selected text"""
-        self.select = pygame.draw.rect(self.screen, (255, 255, 255),
-                                       pygame.Rect(topleft, dimensions), 1)
+        if self.cur_item is None:
+            self.cur_item = 0
+        else:
+            # Find the chosen item
+            if key == pygame.K_UP and \
+                    self.cur_item > 0:
+                self.cur_item -= 1
+            elif key == pygame.K_UP and \
+                    self.cur_item == 0:
+                self.cur_item = len(self.items) - 1
+            elif key == pygame.K_DOWN and \
+                    self.cur_item < len(self.items) - 1:
+                self.cur_item += 1
+            elif key == pygame.K_DOWN and \
+                    self.cur_item == len(self.items) - 1:
+                self.cur_item = 0
+
+        self.items[self.cur_item].set_italic(True)
+        self.items[self.cur_item].set_font_color(RED)
+
+    def set_mouse_selection(self, item, mpos):
+        """Marks the MenuItem the mouse cursor hovers on."""
+        if item.is_mouse_selection(mpos):
+            item.set_font_color(RED)
+            item.set_italic(True)
+        else:
+            item.set_font_color(WHITE)
+            item.set_italic(False)
 
     def run(self):
-        """Creates the mainloop of the simulation"""
         mainloop = True
         while mainloop:
             # Limit frame speed to 50 FPS
-            time_passed = self.clock.tick(50)
+            self.clock.tick(50)
+
+            mpos = pygame.mouse.get_pos()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     mainloop = False
+                if event.type == pygame.KEYDOWN:
+                    self.mouse_is_visible = False
+                    self.set_keyboard_selection(event.key)
+                    # Finally check if Enter or Space is pressed
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
+                        text = self.items[self.cur_item].text
+                        mainloop = False
+                        pygame.mouse.set_visible(True)
+                        self.funcs[text]()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    mx, my = pygame.mouse.get_pos()
                     for item in self.items:
-                        if self.is_selection(mx, my, item):
-                            self.funcs[item[-1]]()
+                        if item.is_mouse_selection(mpos):
+                            mainloop = False
+                            self.funcs[item.text]()
+
+            if pygame.mouse.get_rel() != (0, 0):
+                self.mouse_is_visible = True
+                self.cur_item = None
+
+            self.set_mouse_visibility()
 
             # Redraw the background
             self.screen.fill(self.bg_color)
 
-            # Find mouse pos and mark selection if any
-            mx, my = pygame.mouse.get_pos()
             for item in self.items:
-                if self.is_selection(mx, my, item):
-                    self.mark_selection(item[2], item[1])
-
-
-            # Redraws the menu items
-            self.insert_menu_items()
+                if self.mouse_is_visible:
+                    self.set_mouse_selection(item, mpos)
+                self.screen.blit(item.label, item.position)
 
             pygame.display.flip()
 
 
-class Main(object):
-    def __init__(self, dimensions=(640, 480), bg_color=(0, 0, 0),
-                 caption="Game Menu"):
-
-        self.dimensions = self.width, self.height = dimensions
-        self.bg_color = bg_color
-        self.caption = caption
-
-        # Creating the screen
-        self.screen = pygame.display.set_mode((self.width, self.height), 0, 32)
-        pygame.display.set_caption(self.caption)
-        self.clock = pygame.time.Clock()
-
-    def main(self):
-        # Creating the menu
-        #self.menu = GameMenu()
-        #self.menu.run()
-        pass
-
-        # Once the Menu is done, run the game...
-
 if __name__ == "__main__":
-    #main = Main()
-    #main.main()
+    def hello_world():
+        print "Hello World!"
 
     # Creating the screen
     screen = pygame.display.set_mode((640, 480), 0, 32)
+
+    menu_items = ('Start', 'Quit')
+    funcs = {'Start': hello_world,
+             'Quit': sys.exit}
+
     pygame.display.set_caption('Game Menu')
-
-    bg_color = (0,0,0)
-
-    gm = GameMenu(screen, ('Start', 'Quit'), bg_color, font='Ubuntu')
+    gm = GameMenu(screen, funcs.keys(), funcs)
     gm.run()
