@@ -4,7 +4,7 @@ from settings import DIMENSIONS
 
 """
 Moving Objects
-# Outside Factors - defined in main.py
+# Outside Factors - defined in main.py and settings.py
 self.screen = screen
 self.scaling = scaling_factor
 
@@ -30,7 +30,7 @@ self.toc = time_of_creation
 
 # Note if posy not given, then it is a point just below the screen defined in
 # Game() of main.py
-WIDHT, HEIGHT = DIMENSIONS
+WIDTH, HEIGHT = DIMENSIONS
 
 # definitions of objects
 small_starburst = {
@@ -87,13 +87,13 @@ lvl_test1 = {'Game': {
         },
         {
             'angle': -0.5,
-            'posx': WIDHT-100,
+            'posx': WIDTH-100,
             'type': small_starburst,
             'toc': 1.0,
         },
         {
             'angle': 0.0,
-            'posx': WIDHT / 2,
+            'posx': WIDTH / 2,
             'type': large_starburst,
             'toc': 1.0,
         }
