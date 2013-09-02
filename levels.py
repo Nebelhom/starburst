@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from objects import *
-from main import DIMENSIONS
+from settings import DIMENSIONS
 
 """
 Moving Objects

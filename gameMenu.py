@@ -3,11 +3,9 @@
 import sys
 import pygame
 
-pygame.init()
+from settings import BLACK, RED, WHITE
 
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-BLACK = (0, 0, 0)
+pygame.init()
 
 class MenuItem(pygame.font.Font):
     def __init__(self, text, font=None, font_size=30,

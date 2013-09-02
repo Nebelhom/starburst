@@ -45,43 +45,19 @@ import sys
 
 import pygame
 
-from datetime import datetime
 from _functools import partial
 from pygame.locals import *
 
+from game import Game
 from gameMenu import GameMenu
 from levels import *
+from settings import DIFFICULTY, DIMENSIONS, BLACK, RED, WHITE
 
 pygame.init()
 
-# Give reference pixel amount and then convert
-# e.g in 640x480 1m = 100px; in 1024x800 1m = 200px and then work from there
-
-# Therefore create a conversion factor specific for each resolution
-# and give all other vectors and magnitudes in meters
-
-# This will be adjusted later to automatically recognise certain resolutions
-DIMENSIONS = (640, 480)
-
-# key: value = width: px/m
-# used as scaling factor
-CONVERSIONS = {
-    640: 50,
-    800: 62.5,
-    1024: 80,
-    1280: 100
-}
-
-# This is a factor 
-DIFFICULTY = {
-    'easy': 0.25,
-    'medium': 0.5,
-    'hard': 0.75,
-    'nightmare': 1.0
-}
 
 class Main(object):
-    def __init__(self, dimensions=DIMENSIONS, bg_color=(0, 0, 0),
+    def __init__(self, dimensions=DIMENSIONS, bg_color=BLACK,
                  caption="Starburst"):
         
         self.dimensions = self.width, self.height = dimensions
@@ -93,126 +69,25 @@ class Main(object):
         pygame.display.set_caption(self.caption)
         self.clock = pygame.time.Clock()
 
-        self.bs = self.height + 20
-        # "Below Screen", of course! What did you think it meant?
-
-    def read_game_params(self, lvl_dict):
-        # simulation time in seconds
-        self.simulation_time = lvl_dict['Game']['sim_time']
-
-    def read_bursts(self, lvl_dict):
-        self.bursts = []
-        for mo in lvl_dict['MovingObjects']:
-            mobj = mo['type']['class'](
-                mo['type']['colour'],
-                mo['type']['exp_max_size'],
-                mo['type']['score'],
-                mo['toc'],
-                self.screen,
-                (mo['posx'], self.bs),
-                mo['angle'],
-                mo['type']['size'],
-                mo['type']['speed'],
-                CONVERSIONS[self.width]
-            )
-            self.bursts.append(mobj)
-
-    def read_lvl(self, lvl_dict):
-        self.read_game_params(lvl_dict)
-        self.read_bursts(lvl_dict)
-
-    def run_simulation(self, lvl):
-        start = datetime.now()
-
-        self.read_lvl(lvl)
-        explosions = []
-
-        mainloop = True
-        while mainloop:
-            # Limit frame speed to 50 FPS
-            time_passed = self.clock.tick(50)
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    mainloop = False
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouseX, mouseY = pygame.mouse.get_pos()
-                    # self.add_explosive(mouseX, mouseY)
-                    exp = Explosion(
-                        reg_starburst['exp_max_size'],
-                        self.screen,
-                        (mouseX, mouseY),
-                        0.0,  # angle
-                        1,    # size
-                        0,    # speed
-                        CONVERSIONS[self.width]
-                    )
-                    explosions.append(exp)
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        mainloop = False
-
-            # Redraw the background
-            self.screen.fill(self.bg_color)
-
-            cur_time = (datetime.now() - start).total_seconds()
-
-            for i, burst in enumerate(self.bursts):
-                # Update and redraw all circles
-                burst.move(time_passed, cur_time)
-                burst.bounce()
-                # Collision detection
-                for burst2 in self.bursts[i+1:]:
-                    burst.collide(burst2)
-                burst.display()
-                if not burst.alive:
-                    self.bursts.remove(burst)  # No more calculations
-
-            for exp in explosions:
-                exp.explode()
-                exp.move(time_passed)
-                exp.bounce()
-                # Collision detection
-                for burst in self.bursts:
-                    contact = exp.collide(burst)
-                    # Checks for contact and converts burst to explosion
-                    if contact:
-                        new_exp = Explosion(
-                            burst.exp_max_size,
-                            self.screen,
-                            (burst.x, burst.y),
-                            burst.angle,
-                            burst.size,
-                            burst.speed,
-                            CONVERSIONS[self.width]
-                        )
-                        explosions.append(new_exp)
-                        self.bursts.remove(burst)
-                exp.display()
-                if not exp.alive:
-                    explosions.remove(exp)
-
-            pygame.display.flip()
-
-            if cur_time > self.simulation_time and self.bursts == []:
-                start = datetime.now()
-                self.read_bursts(lvl)
-
-                for burst in self.bursts:
-                    burst.alive = True  # Revive them
-    
-    def run_startmenu(self):
-        pass
+    def empty_func(self):
+        print "Empty!"
 
     def main(self):
-        menu_items = ('Start', 'Quit')
+        # Object initialisation
+
+        # Main Game
+        self.game = Game(self.screen, self.bg_color)
+
+        # Game Menu
+        menu_items = ('Start', 'Help', 'Quit')
         funcs = {
-            'Start': partial(self.run_simulation, lvl_test1),
+            'Start': partial(self.game.run_simulation, lvl_test1),
+            'Help': self.empty_func,
             'Quit': sys.exit
         }
         self.gm = GameMenu(self.screen, menu_items, funcs, self.bg_color)
+
+        # Start the show
         self.gm.run()
 
 if __name__ == '__main__':

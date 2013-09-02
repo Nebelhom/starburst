@@ -2,6 +2,8 @@
 import math
 import pygame
 
+from settings import GRAVITY, GRAVITY_DIR, GRAVITY_STR
+
 pygame.init()
 
 # Give reference pixel amount and then convert
