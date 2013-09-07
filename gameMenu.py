@@ -40,7 +40,7 @@ class MenuItem(pygame.font.Font):
 
 
 class GameMenu():
-    def __init__(self, screen, items, funcs, bg_color=BLACK, font=None, font_size=30,
+    def __init__(self, screen, items, bg_color=BLACK, font=None, font_size=30,
                  font_color=WHITE):
         self.screen = screen
         self.scr_width = self.screen.get_rect().width
@@ -49,7 +49,6 @@ class GameMenu():
         self.bg_color = bg_color
         self.clock = pygame.time.Clock()
 
-        self.funcs = funcs
         self.items = []
         for index, item in enumerate(items):
             menu_item = MenuItem(item, font, font_size, font_color)
@@ -128,12 +127,12 @@ class GameMenu():
                         text = self.items[self.cur_item].text
                         mainloop = False
                         pygame.mouse.set_visible(True)
-                        self.funcs[text]()
+                        return text
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for item in self.items:
                         if item.is_mouse_selection(mpos):
                             mainloop = False
-                            self.funcs[item.text]()
+                            return item.text
 
             if pygame.mouse.get_rel() != (0, 0):
                 self.mouse_is_visible = True
@@ -159,10 +158,6 @@ if __name__ == "__main__":
     # Creating the screen
     screen = pygame.display.set_mode((640, 480), 0, 32)
 
-    menu_items = ('Start', 'Quit')
-    funcs = {'Start': hello_world,
-             'Quit': sys.exit}
-
     pygame.display.set_caption('Game Menu')
-    gm = GameMenu(screen, funcs.keys(), funcs)
-    gm.run()
+    gm = GameMenu(screen, ('Start', 'Quit'))
+    print gm.run()

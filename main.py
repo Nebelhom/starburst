@@ -69,9 +69,6 @@ class Main(object):
         pygame.display.set_caption(self.caption)
         self.clock = pygame.time.Clock()
 
-    def empty_func(self):
-        print "Empty!"
-
     def main(self):
         # Object initialisation
 
@@ -80,15 +77,16 @@ class Main(object):
 
         # Game Menu
         menu_items = ('Start', 'Help', 'Quit')
-        funcs = {
-            'Start': partial(self.game.run_simulation, lvl_test1),
-            'Help': self.empty_func,
-            'Quit': sys.exit
-        }
-        self.gm = GameMenu(self.screen, menu_items, funcs, self.bg_color)
+        self.gm = GameMenu(self.screen, menu_items, self.bg_color)
 
         # Start the show
-        self.gm.run()
+        choice = self.gm.run()
+        if choice == 'Start':
+            self.game.run_simulation(lvl_test1)
+        elif choice == 'Help':
+            pass
+        else:
+            sys.exit()
 
 if __name__ == '__main__':
     game = Main()
