@@ -148,6 +148,7 @@ class Game(object):
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        self.score = 0
                         return
                     elif event.key == pygame.K_SPACE:
                         sys.exit()
@@ -380,6 +381,9 @@ class Game(object):
             pygame.display.flip()
 
             if self.cur_time > self.simulation_time and self.bursts == []:
+                self.clear_variables()
+                self.charges = []
+                self.num_charges = None
                 return 1
 
 if __name__ == "__main__":
