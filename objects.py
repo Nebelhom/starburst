@@ -2,7 +2,7 @@
 import math
 import pygame
 
-from settings import GRAVITY, GRAVITY_DIR, GRAVITY_STR
+from settings import GRAVITY, GRAVITY_DIR, GRAVITY_STR, BLACK, RED, WHITE
 
 pygame.init()
 
@@ -33,7 +33,7 @@ class MovingObject:
         # Object intrinsic attributes
         self.alive = True
         self.angle = angle
-        self.colour = (255, 255, 255)
+        self.colour = WHITE
         self.size = size
         self.speed = speed
         # self.angle in radians from 0 to math.pi*2
@@ -90,7 +90,8 @@ class MovingObject:
         """
         if self.alive:
             time /= 1000.0
-            self.angle, self.speed = addVectors((self.angle, self.speed), (GRAVITY_DIR, GRAVITY_STR * time))
+            self.angle, self.speed = addVectors((self.angle, self.speed),
+                                                (GRAVITY_DIR, GRAVITY_STR * time))
             self.x += math.sin(self.angle) * self.speed * time * self.scaling
             self.y -= math.cos(self.angle) * self.speed * time * self.scaling
 
@@ -105,7 +106,8 @@ class Starburst(MovingObject):
     There should be three different types: small, regular, large;
     They will vary in size, speed and explosion radius
     """
-    def __init__(self, colour, exp_max_size, score, time_of_creation, *args, **kwargs):
+    def __init__(self, colour, exp_max_size, score, time_of_creation,
+                 *args, **kwargs):
         """
         time_of_creation: Gives time when it should start, in seconds
         """
@@ -142,7 +144,7 @@ class Explosion(MovingObject):
 
         MovingObject.__init__(self, *args, **kwargs)
 
-        self.color = 255, 0, 0
+        self.color = RED
         self.max_size = max_size
 
     def bounce(self):
@@ -193,6 +195,34 @@ class Explosion(MovingObject):
             self.alive = False
         else:
             self.size += 3
+
+class Detonator(object):
+    """Detonators in the Game. Will become Explosion afterwards."""
+    def __init__(self, screen, (pos_x, pos_y), (width, height)=(10, 10),
+                 color=RED, explosion_size=10):
+        self.screen = screen
+        self.position = (pos_x, pos_y)
+        self.pos_x, self.pos_y = pos_x, pos_y
+        self.dimensions = (width, height)
+        self.width, self.height = width, height
+        self.color = color
+        
+        self.expl_size = explosion_size
+        self.alive = True
+
+    def set_position(self, x, y):
+        self.position = (x, y)
+        self.pos_x = x
+        self.pos_y = y
+
+    def display(self):
+        if self.alive:
+            pygame.draw.rect(self.screen, self.color, 
+                             (self.position, self.dimensions), 0)
+
+    def detonate(self):
+        self.alive = False
+    
 
 ######################
 ## Global Functions ##

@@ -80,13 +80,20 @@ class Main(object):
         self.gm = GameMenu(self.screen, menu_items, self.bg_color)
 
         # Start the show
-        choice = self.gm.run()
-        if choice == 'Start':
-            self.game.run_simulation(lvl_test1)
-        elif choice == 'Help':
-            pass
-        else:
-            sys.exit()
+        while True:
+            choice = self.gm.run()
+            if choice == 'Start':
+                expl = self.game.display_explanation()
+                if expl == 1:
+                    sim = self.game.run_simulation(lvl_test1)
+                    if sim:
+                        self.game.run_game(lvl_test1)
+                else:
+                    pass
+            elif choice == 'Help':
+                pass
+            else:
+                sys.exit()
 
 if __name__ == '__main__':
     game = Main()

@@ -63,7 +63,8 @@ large_starburst = {
 
 # Test if Starburst are correctly displayed
 lvl_test0 = {'Game': {
-            'sim_time': 4.0
+            'sim_time': 4.0,
+            'num_charges': 1,
         },
         'MovingObjects': [
         {
@@ -76,7 +77,8 @@ lvl_test0 = {'Game': {
 
 # Test if Collision Detection of Starbursts (and Explosions) work
 lvl_test1 = {'Game': {
-            'sim_time': 4.0
+            'sim_time': 4.0,
+            'num_charges': 1,
         },
         'MovingObjects': [
         {
@@ -102,7 +104,8 @@ lvl_test1 = {'Game': {
 
 # Test if Explosions do not bounce on wall but just stick
 lvl_test2 = {'Game': {
-            'sim_time': 4.0
+            'sim_time': 4.0,
+            'num_charges': 1,
         },
         'MovingObjects': [
         {

@@ -33,13 +33,19 @@ Brainstorming on saving level information. What needs to be in there?
 # Implement difficulty levels by giving fractions of real gravity and speed to make it all slower...
 # (*0.25, 0.5, 0.75 and 1.0)
 
-import pygame
+# If ESC called in between actions need to clear all variables again before returning to menu
 
+# implement game with explosions and score
+# Give and endscreen how much the player scored
+
+import sys
 from datetime import datetime
+
+import pygame
 from pygame.locals import *
 
 from levels import *
-from settings import CONVERSIONS, DIFFICULTY, BLACK, RED, WHITE
+from settings import CONVERSIONS, DIFFICULTY, BLACK, BLUE, RED, WHITE
 
 pygame.init()
 
@@ -74,29 +80,78 @@ class Game(object):
         # Game variables
         self.bursts = []
         self.explosions = []
+        self.charges = []
         self.cur_time = None # defined in loop
 
     def display_explanation(self):
-        pass
+        """
+        Explains the game and returns 0 when pressing Esc
+        and 1 when pressing Space.
+        """
+        while True:
+            # Limit frame speed to 50 FPS
+            time_passed = self.clock.tick(50)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return 0
+                    elif event.key == pygame.K_SPACE:
+                        return 1
+
+            # Redraw the background
+            self.screen.fill(self.bg_color)
+
+            # Create the text
+            self.exp_font = pygame.font.SysFont('None', 30)            
+            
+            expl1 = "Watch the simulation and then"
+            expl2 = "place the charges in strategic positions."
+            expl3 = "To place them do a left-click,"
+            expl4 = "To remove them do a right-click."
+            expl5 = "Detonate them in the game by pressing SPACE."
+            expl6 = "Press <SPACE> to continue or"
+            expl7 = "<ESC> to return to the start menu."
+            
+            expl1_text = self.exp_font.render(expl1, 0, WHITE)
+            expl2_text = self.exp_font.render(expl2, 0, WHITE)
+            expl3_text = self.exp_font.render(expl3, 0, WHITE)
+            expl4_text = self.exp_font.render(expl4, 0, WHITE)
+            expl5_text = self.exp_font.render(expl5, 0, WHITE)
+            expl6_text = self.exp_font.render(expl6, 0, WHITE)
+            expl7_text = self.exp_font.render(expl7, 0, WHITE)
+            
+            # Bring it to the screen
+            self.screen.blit(expl1_text, (40, 100))
+            self.screen.blit(expl2_text, (40, 120))
+            self.screen.blit(expl3_text, (40, 140))
+            self.screen.blit(expl4_text, (40, 160))
+            self.screen.blit(expl5_text, (40, 180))
+            self.screen.blit(expl6_text, (40, 220))
+            self.screen.blit(expl7_text, (40, 240))
+
+            pygame.display.flip()
 
     def draw_static_text(self):
         """Displays score and time countdown in top right corner"""
 
         # Create the text
         self.s_text = "Score: %d" % (self.score)
-        self.score_text = self.font.render(self.s_text, 0, (255, 255, 255))
+        self.score_text = self.font.render(self.s_text, 0, WHITE)
         self.t_text = "Time left: %.2f" % (self.time)
-        self.time_text = self.font.render(self.t_text, 0, (255, 255, 255))
+        self.time_text = self.font.render(self.t_text, 0, WHITE)
+        self.c_text = "Charges left: %d" % (self.num_charges)
+        self.charges_text = self.font.render(self.c_text, 0, WHITE)
 
         # Bring it to the screen
         self.screen.blit(self.score_text, (0, 0))
         height_diff = self.score_text.get_rect()[3]
         self.screen.blit(self.time_text, (0, height_diff))
+        self.screen.blit(self.charges_text, (0, height_diff*2))
 
     def draw_the_action(self, cur_time, time_passed):
-        # Redraw the background
-        self.screen.fill(self.bg_color)
-        self.draw_static_text()
 
         for i, burst in enumerate(self.bursts):
             # Update and redraw all circles
@@ -133,11 +188,10 @@ class Game(object):
             if not exp.alive:
                 self.explosions.remove(exp)
 
-        pygame.display.flip()
-
     def read_game_params(self, lvl_dict):
         # simulation time in seconds
         self.simulation_time = lvl_dict['Game']['sim_time']
+        self.num_charges = lvl_dict['Game']['num_charges']
 
     def read_bursts(self, lvl_dict):
         for mo in lvl_dict['MovingObjects']:
@@ -160,8 +214,6 @@ class Game(object):
         self.read_bursts(lvl_dict)
 
     def run_simulation(self, lvl):
-        self.score_text = self.font.render("Score: %d" % (self.score), 0,
-                                           self.font_color)
         start = datetime.now()
 
         self.read_lvl(lvl)
@@ -174,15 +226,49 @@ class Game(object):
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    mainloop = False
+                    sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        mainloop = False
+                        return
+                    if event.key == pygame.K_SPACE and \
+                            self.num_charges == 0:
+                        return 1
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.num_charges > 0:
+                        mpos = pygame.mouse.get_pos()
+                        detonator = Detonator(self.screen, mpos)
+                        self.charges.append(detonator)
+                        self.num_charges -= 1
+                    if pygame.mouse.get_pressed()[2] == 1 and \
+                            self.charges != []:
+                        self.charges.pop()
+                        self.num_charges += 1
 
             self.cur_time = (datetime.now() - start).total_seconds()
             # Adjust simulation time
             self.time = self.simulation_time - self.cur_time
+            
+            # Redraw the background
+            self.screen.fill(self.bg_color)
+            self.draw_static_text()
+            
+            for charge in self.charges:
+                charge.display()
+                if not charge.alive:
+                    self.charges.remove(charge)
+            
             self.draw_the_action(self.cur_time, time_passed)
+            
+            if self.num_charges == 0:
+                # Create the text
+                self.continue_font = pygame.font.SysFont('None', 30)            
+                cont = "If you are ready, press <SPACE> to start the game"
+                cont_text = self.continue_font.render(cont, 0, BLUE)
+                # Bring it to the screen
+                halfway = self.screen.get_height() / 2
+                self.screen.blit(cont_text, (40, halfway))
+            
+            pygame.display.flip()
 
             if self.cur_time > self.simulation_time and self.bursts == []:
                 start = datetime.now()
@@ -192,6 +278,8 @@ class Game(object):
                     burst.alive = True  # Revive them
 
         # Once out let real game be called from Main. Only return certain values like coordinates etc.
+    def run_game(self, lvl):
+        pass
 
 if __name__ == "__main__":
     # Creating the screen

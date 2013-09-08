@@ -128,6 +128,8 @@ class GameMenu():
                         mainloop = False
                         pygame.mouse.set_visible(True)
                         return text
+                    if event.key == pygame.K_ESCAPE:
+                        sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for item in self.items:
                         if item.is_mouse_selection(mpos):
