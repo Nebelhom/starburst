@@ -15,6 +15,7 @@ pygame.init()
 #GRAVITY = 10  # m per s
 GRAVITY = GRAVITY_DIR, GRAVITY_STR = (math.pi, 10)
 
+
 class MovingObject:
     def __init__(self, screen, (x, y), angle, size, speed, scaling_factor):
         """
@@ -63,14 +64,14 @@ class MovingObject:
             tangent = math.atan2(dy, dx)
             self.angle = 2 * tangent - self.angle
             other.angle = 2 * tangent - other.angle
-            
+
             # Exchange speeds
             (self.speed, other.speed) = (other.speed, self.speed)
-            
+
             # Make sure that objects do not overlap after collision
             # avoids objects sticking to one another
-            angle = 0.5 * math.pi + tangent # Calculate angle between objects
-            
+            angle = 0.5 * math.pi + tangent  # Calculate angle between objects
+
             # Move objects along angle away from each other
             self.x += math.sin(angle)
             self.y -= math.cos(angle)
@@ -98,6 +99,7 @@ class MovingObject:
             # Below floor = kill it
             if self.y > self.screen.get_width() + self.size:
                 self.alive = False
+
 
 class Starburst(MovingObject):
     """
@@ -135,6 +137,7 @@ class Starburst(MovingObject):
             if self.y > self.screen.get_width() + self.size:
                 self.alive = False
 
+
 class Explosion(MovingObject):
     """
     Represents an explosion
@@ -153,7 +156,7 @@ class Explosion(MovingObject):
         this direction.
         """
         width = self.screen.get_width()
-        if self.x > width - (self.size / 2)  or self.x < (self.size / 2):
+        if self.x > width - (self.size / 2) or self.x < (self.size / 2):
             self.speed = 0
 
     def collide(self, other):
@@ -170,14 +173,14 @@ class Explosion(MovingObject):
             tangent = math.atan2(dy, dx)
             #self.angle = 2 * tangent - self.angle
             other.angle = 2 * tangent - other.angle
-            
+
             # Exchange speeds
             #(self.speed, other.speed) = (other.speed, self.speed)
-            
+
             # Make sure that objects do not overlap after collision
             # avoids objects sticking to one another
-            angle = 0.5 * math.pi + tangent # Calculate angle between objects
-            
+            angle = 0.5 * math.pi + tangent  # Calculate angle between objects
+
             # Move objects along angle away from each other
             #self.x += math.sin(angle)
             #self.y -= math.cos(angle)
@@ -196,33 +199,34 @@ class Explosion(MovingObject):
         else:
             self.size += 3
 
+
 class Detonator(object):
     """Detonators in the Game. Will become Explosion afterwards."""
     def __init__(self, screen, (pos_x, pos_y), (width, height)=(10, 10),
-                 color=RED, explosion_size=10):
+                 color=RED, explosion_size=30):
         self.screen = screen
         self.position = (pos_x, pos_y)
-        self.pos_x, self.pos_y = pos_x, pos_y
+        self.x, self.y = pos_x, pos_y
         self.dimensions = (width, height)
         self.width, self.height = width, height
         self.color = color
-        
-        self.expl_size = explosion_size
+
+        self.explosion_size = explosion_size
         self.alive = True
 
     def set_position(self, x, y):
         self.position = (x, y)
-        self.pos_x = x
-        self.pos_y = y
+        self.x = x
+        self.y = y
 
     def display(self):
         if self.alive:
-            pygame.draw.rect(self.screen, self.color, 
+            pygame.draw.rect(self.screen, self.color,
                              (self.position, self.dimensions), 0)
 
     def detonate(self):
         self.alive = False
-    
+
 
 ######################
 ## Global Functions ##

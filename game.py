@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 
 """
-Game Mechanics Possibilty 2 (Tendency goes to this one. Seems simpler...)
-The player sees a simulation of what is happening and can then decide where to
-place a certain amount of charges and decides on clicking, when to detonate them.
-
-From the first explosion, it will be counted how many other objects have been exploded
-incrementing the score.
-
 Ideally, free style with random stuff mode and afterwards some kinda levels.
 
 Different types of Starbursts
@@ -57,6 +50,7 @@ pygame.init()
 
 # see settings.py
 
+
 class Game(object):
     def __init__(self, screen, bg_color, font="None", font_size=20, font_color=WHITE):
 
@@ -81,7 +75,13 @@ class Game(object):
         self.bursts = []
         self.explosions = []
         self.charges = []
-        self.cur_time = None # defined in loop
+        self.cur_time = None  # defined in loop
+
+    def clear_variables(self):
+        # Game variables
+        self.bursts = []
+        self.explosions = []
+        self.cur_time = None  # defined in loop
 
     def display_explanation(self):
         """
@@ -105,8 +105,8 @@ class Game(object):
             self.screen.fill(self.bg_color)
 
             # Create the text
-            self.exp_font = pygame.font.SysFont('None', 30)            
-            
+            self.exp_font = pygame.font.SysFont('None', 30)
+
             expl1 = "Watch the simulation and then"
             expl2 = "place the charges in strategic positions."
             expl3 = "To place them do a left-click,"
@@ -114,7 +114,7 @@ class Game(object):
             expl5 = "Detonate them in the game by pressing SPACE."
             expl6 = "Press <SPACE> to continue or"
             expl7 = "<ESC> to return to the start menu."
-            
+
             expl1_text = self.exp_font.render(expl1, 0, WHITE)
             expl2_text = self.exp_font.render(expl2, 0, WHITE)
             expl3_text = self.exp_font.render(expl3, 0, WHITE)
@@ -122,7 +122,7 @@ class Game(object):
             expl5_text = self.exp_font.render(expl5, 0, WHITE)
             expl6_text = self.exp_font.render(expl6, 0, WHITE)
             expl7_text = self.exp_font.render(expl7, 0, WHITE)
-            
+
             # Bring it to the screen
             self.screen.blit(expl1_text, (40, 100))
             self.screen.blit(expl2_text, (40, 120))
@@ -131,6 +131,45 @@ class Game(object):
             self.screen.blit(expl5_text, (40, 180))
             self.screen.blit(expl6_text, (40, 220))
             self.screen.blit(expl7_text, (40, 240))
+
+            pygame.display.flip()
+
+    def display_score(self):
+        """
+        Displays the final score and returns 0 when pressing Esc
+        and 1 when pressing Space.
+        """
+        while True:
+            # Limit frame speed to 50 FPS
+            time_passed = self.clock.tick(50)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return
+                    elif event.key == pygame.K_SPACE:
+                        sys.exit()
+
+            # Redraw the background
+            self.screen.fill(self.bg_color)
+
+            # Create the text
+            #self.exp_font = pygame.font.SysFont('None', 30)
+
+            final_score = "Your final score is %d" % self.score
+            instructions1 = "Press <ESC> to return to menu or"
+            instructions2 = "<SPACE> to exit the game."
+
+            fscore_text = self.exp_font.render(final_score, 0, WHITE)
+            instr1_text = self.exp_font.render(instructions1, 0, WHITE)
+            instr2_text = self.exp_font.render(instructions2, 0, WHITE)
+
+            # Bring it to the screen
+            self.screen.blit(fscore_text, (40, self.screen.get_height() / 2 - 60))
+            self.screen.blit(instr1_text, (40, self.screen.get_height() / 2))
+            self.screen.blit(instr2_text, (40, self.screen.get_height() / 2 + 20))
 
             pygame.display.flip()
 
@@ -149,10 +188,10 @@ class Game(object):
         self.screen.blit(self.score_text, (0, 0))
         height_diff = self.score_text.get_rect()[3]
         self.screen.blit(self.time_text, (0, height_diff))
-        self.screen.blit(self.charges_text, (0, height_diff*2))
+        self.screen.blit(self.charges_text, (0, height_diff * 2))
 
     def draw_the_action(self, cur_time, time_passed):
-
+        """Draws the moving parts of the simulation."""
         for i, burst in enumerate(self.bursts):
             # Update and redraw all circles
             burst.move(time_passed, cur_time)
@@ -173,6 +212,7 @@ class Game(object):
                 contact = exp.collide(burst)
                 # Checks for contact and converts burst to explosion
                 if contact:
+                    self.increment_score(burst)
                     new_exp = Explosion(
                         burst.exp_max_size,
                         self.screen,
@@ -187,6 +227,15 @@ class Game(object):
             exp.display()
             if not exp.alive:
                 self.explosions.remove(exp)
+
+    def increment_score(self, burst):
+        """
+        Increment self.score.
+
+        Moving object is part of the StarBurst class
+
+        """
+        self.score += burst.score
 
     def read_game_params(self, lvl_dict):
         # simulation time in seconds
@@ -229,9 +278,12 @@ class Game(object):
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        self.clear_variables()
+                        self.charges = []
                         return
                     if event.key == pygame.K_SPACE and \
                             self.num_charges == 0:
+                        self.clear_variables()
                         return 1
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.num_charges > 0:
@@ -247,27 +299,27 @@ class Game(object):
             self.cur_time = (datetime.now() - start).total_seconds()
             # Adjust simulation time
             self.time = self.simulation_time - self.cur_time
-            
+
             # Redraw the background
             self.screen.fill(self.bg_color)
             self.draw_static_text()
-            
+
             for charge in self.charges:
                 charge.display()
                 if not charge.alive:
                     self.charges.remove(charge)
-            
+
             self.draw_the_action(self.cur_time, time_passed)
-            
+
             if self.num_charges == 0:
                 # Create the text
-                self.continue_font = pygame.font.SysFont('None', 30)            
+                self.continue_font = pygame.font.SysFont('None', 30)
                 cont = "If you are ready, press <SPACE> to start the game"
                 cont_text = self.continue_font.render(cont, 0, BLUE)
                 # Bring it to the screen
                 halfway = self.screen.get_height() / 2
                 self.screen.blit(cont_text, (40, halfway))
-            
+
             pygame.display.flip()
 
             if self.cur_time > self.simulation_time and self.bursts == []:
@@ -277,9 +329,58 @@ class Game(object):
                 for burst in self.bursts:
                     burst.alive = True  # Revive them
 
-        # Once out let real game be called from Main. Only return certain values like coordinates etc.
     def run_game(self, lvl):
-        pass
+        start = datetime.now()
+
+        self.read_lvl(lvl)
+        self.time = self.simulation_time
+
+        mainloop = True
+        while mainloop:
+            # Limit frame speed to 50 FPS
+            time_passed = self.clock.tick(50)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        # empty all the values
+                        self.clear_variables()
+                        self.charges = []
+                        return
+                    if event.key == pygame.K_SPACE:
+                        det = self.charges.pop(0)
+                        # Stationary Explosion
+                        new_exp = Explosion(det.explosion_size,
+                                            self.screen,
+                                            (det.x, det.y),
+                                            angle=0,
+                                            size=(det.width / 2),
+                                            speed=0,
+                                            scaling_factor=CONVERSIONS[self.width])
+                        self.explosions.append(new_exp)
+
+            self.cur_time = (datetime.now() - start).total_seconds()
+            # Adjust simulation time
+            if self.time > 0:
+                self.time = self.simulation_time - self.cur_time
+
+            # Redraw the background
+            self.screen.fill(self.bg_color)
+            self.draw_static_text()
+
+            for charge in self.charges:
+                charge.display()
+                if not charge.alive:
+                    self.charges.remove(charge)
+
+            self.draw_the_action(self.cur_time, time_passed)
+
+            pygame.display.flip()
+
+            if self.cur_time > self.simulation_time and self.bursts == []:
+                return 1
 
 if __name__ == "__main__":
     # Creating the screen
