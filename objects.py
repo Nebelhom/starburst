@@ -147,20 +147,25 @@ class DoubleScore(Starburst):
     Starburst class that returns double score when burst.
 
     """
-    def __init__(self, colour, exp_max_size, score, *args, **kwargs):
-        """
-        time_of_creation: Gives time when it should start, in seconds
-        """
-        MovingObject.__init__(self, *args, **kwargs)
-
-        self.colour = GREEN
-        self.exp_max_size = 10
-        self.score = None
-        self.size = 5
+    def __init__(self, *args, **kwargs):
+        Starburst.__init__(self, *args, **kwargs)
 
     def add_score(self, current_score):
         """Doubles the score"""
         return current_score * 2
+
+
+class QuadrupleScore(Starburst):
+    """
+    Starburst class that returns double score when burst.
+
+    """
+    def __init__(self, *args, **kwargs):
+        Starburst.__init__(self, *args, **kwargs)
+
+    def add_score(self, current_score):
+        """Doubles the score"""
+        return current_score * 4
 
 
 class HalfScore(Starburst):
@@ -168,16 +173,8 @@ class HalfScore(Starburst):
     Starburst class that returns double score when burst.
 
     """
-    def __init__(self, colour, exp_max_size, score, *args, **kwargs):
-        """
-        time_of_creation: Gives time when it should start, in seconds
-        """
-        MovingObject.__init__(self, *args, **kwargs)
-
-        self.colour = RED
-        self.exp_max_size = 10
-        self.score = None
-        self.size = 20
+    def __init__(self, *args, **kwargs):
+        Starburst.__init__(self, *args, **kwargs)
 
     def add_score(self, current_score):
         """Doubles the score"""

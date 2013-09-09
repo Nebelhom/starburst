@@ -30,7 +30,7 @@ class Main(object):
         pygame.display.set_caption(self.caption)
         self.clock = pygame.time.Clock()
 
-    def main(self):
+    def main(self, lvl):
         # Object initialisation
 
         # Main Game
@@ -50,13 +50,13 @@ class Main(object):
             if choice == 'Play Highscore':
                 expl = self.game.display_explanation()
                 if expl == 1:
-                    sim = self.game.run_simulation(lvl_test1)
+                    sim = self.game.run_simulation(lvl)
                     if not sim:
                         continue
-                    game = self.game.run_game(lvl_test1)
+                    game = self.game.run_game(lvl)
                     if not game:
                         continue
-                    gatekeeper = self.game.display_score()
+                    gatekeeper = self.game.display_score(lvl)
                 else:
                     pass
             elif choice == 'Help':
@@ -66,4 +66,4 @@ class Main(object):
 
 if __name__ == '__main__':
     game = Main()
-    game.main()
+    game.main(lvl_test3)
