@@ -147,14 +147,14 @@ class Game(object):
                 if event.type == pygame.QUIT:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
+                    if event.key == pygame.K_BACKSPACE:
                         self.score = 0
                         return None
                     elif event.key == pygame.K_SPACE:
                         self.score = 0
                         self.clear_variables()
                         return 1
-                    elif event.key == pygame.K_BACKSPACE:
+                    elif event.key == pygame.K_ESCAPE:
                         sys.exit()
 
             # Redraw the background
@@ -164,9 +164,9 @@ class Game(object):
             #self.exp_font = pygame.font.SysFont('None', 30)
 
             final_score = "Your final score is %d" % self.score
-            instructions1 = "Press <ESC> to return to menu,"
+            instructions1 = "Press <BACKSPACE> to return to menu,"
             instructions2 = "<SPACE> to repeat the game or "
-            instructions3 = "<BACKSPACE> to exit."
+            instructions3 = "<ESC> to exit."
 
             fscore_text = self.exp_font.render(final_score, 0, WHITE)
             instr1_text = self.exp_font.render(instructions1, 0, WHITE)

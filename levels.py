@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from objects import *
-from settings import DIMENSIONS, WHITE, BLACK, BLUE, GREEN, RED
+from settings import DIMENSIONS, WHITE, BLACK, BLUE, GREEN, RED, PURPLE
 
 """
 Moving Objects
@@ -64,6 +64,15 @@ double_score = {
     'class': DoubleScore,
     'colour': GREEN,
     'exp_max_size': 10,
+    'score': None,
+    'size': 10,
+    'speed': 15
+}
+
+quadruple_score = {
+    'class': QuadrupleScore,
+    'colour': PURPLE,
+    'exp_max_size': 5,
     'score': None,
     'size': 5,
     'speed': 15
