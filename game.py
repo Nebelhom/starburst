@@ -151,6 +151,10 @@ class Game(object):
                         self.score = 0
                         return
                     elif event.key == pygame.K_SPACE:
+                        self.score = 0
+                        self.clear_variables()
+                        self.run_simulation(lvl_test1)
+                    elif event.key == pygame.K_BACKSPACE:
                         sys.exit()
 
             # Redraw the background
@@ -160,17 +164,20 @@ class Game(object):
             #self.exp_font = pygame.font.SysFont('None', 30)
 
             final_score = "Your final score is %d" % self.score
-            instructions1 = "Press <ESC> to return to menu or"
-            instructions2 = "<SPACE> to exit the game."
+            instructions1 = "Press <ESC> to return to menu,"
+            instructions2 = "<SPACE> to repeat the game or "
+            instructions3 = "<BACKSPACE> to exit."
 
             fscore_text = self.exp_font.render(final_score, 0, WHITE)
             instr1_text = self.exp_font.render(instructions1, 0, WHITE)
             instr2_text = self.exp_font.render(instructions2, 0, WHITE)
+            instr3_text = self.exp_font.render(instructions3, 0, WHITE)
 
             # Bring it to the screen
             self.screen.blit(fscore_text, (40, self.screen.get_height() / 2 - 60))
             self.screen.blit(instr1_text, (40, self.screen.get_height() / 2))
             self.screen.blit(instr2_text, (40, self.screen.get_height() / 2 + 20))
+            self.screen.blit(instr3_text, (40, self.screen.get_height() / 2 + 40))
 
             pygame.display.flip()
 
@@ -236,7 +243,7 @@ class Game(object):
         Moving object is part of the StarBurst class
 
         """
-        self.score += burst.score
+        self.score = burst.add_score(self.score)
 
     def read_game_params(self, lvl_dict):
         # simulation time in seconds

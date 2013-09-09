@@ -2,7 +2,7 @@
 import math
 import pygame
 
-from settings import GRAVITY, GRAVITY_DIR, GRAVITY_STR, BLACK, RED, WHITE
+from settings import GRAVITY, GRAVITY_DIR, GRAVITY_STR, BLACK, GREEN, RED, WHITE
 
 pygame.init()
 
@@ -136,6 +136,52 @@ class Starburst(MovingObject):
             # Below floor = kill it
             if self.y > self.screen.get_width() + self.size:
                 self.alive = False
+
+    def add_score(self, current_score):
+        """Adds self.score to current_score"""
+        return current_score + self.score
+
+
+class DoubleScore(Starburst):
+    """
+    Starburst class that returns double score when burst.
+
+    """
+    def __init__(self, colour, exp_max_size, score, *args, **kwargs):
+        """
+        time_of_creation: Gives time when it should start, in seconds
+        """
+        MovingObject.__init__(self, *args, **kwargs)
+
+        self.colour = GREEN
+        self.exp_max_size = 10
+        self.score = None
+        self.size = 5
+
+    def add_score(self, current_score):
+        """Doubles the score"""
+        return current_score * 2
+
+
+class HalfScore(Starburst):
+    """
+    Starburst class that returns double score when burst.
+
+    """
+    def __init__(self, colour, exp_max_size, score, *args, **kwargs):
+        """
+        time_of_creation: Gives time when it should start, in seconds
+        """
+        MovingObject.__init__(self, *args, **kwargs)
+
+        self.colour = RED
+        self.exp_max_size = 10
+        self.score = None
+        self.size = 20
+
+    def add_score(self, current_score):
+        """Doubles the score"""
+        return current_score / 2
 
 
 class Explosion(MovingObject):

@@ -47,10 +47,12 @@ class Main(object):
                 expl = self.game.display_explanation()
                 if expl == 1:
                     sim = self.game.run_simulation(lvl_test1)
-                    if sim:
-                        game = self.game.run_game(lvl_test1)
-                        if game:
-                            self.game.display_score()
+                    if not sim:
+                        continue
+                    game = self.game.run_game(lvl_test1)
+                    if not game:
+                        continue
+                    self.game.display_score()
                 else:
                     pass
             elif choice == 'Help':
