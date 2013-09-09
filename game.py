@@ -149,11 +149,11 @@ class Game(object):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.score = 0
-                        return
+                        return None
                     elif event.key == pygame.K_SPACE:
                         self.score = 0
                         self.clear_variables()
-                        self.run_simulation(lvl_test1)
+                        return 1
                     elif event.key == pygame.K_BACKSPACE:
                         sys.exit()
 
