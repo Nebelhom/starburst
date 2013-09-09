@@ -37,13 +37,17 @@ class Main(object):
         self.game = Game(self.screen, self.bg_color)
 
         # Game Menu
-        menu_items = ('Start', 'Help', 'Quit')
+        menu_items = ('Play Highscore', 'Help', 'Quit')
         self.gm = GameMenu(self.screen, menu_items, self.bg_color)
+        gatekeeper = None
 
         # Start the show
         while True:
-            choice = self.gm.run()
-            if choice == 'Start':
+            if gatekeeper:
+                choice == "Play Highscore"
+            else:
+                choice = self.gm.run()
+            if choice == 'Play Highscore':
                 expl = self.game.display_explanation()
                 if expl == 1:
                     sim = self.game.run_simulation(lvl_test1)
@@ -52,7 +56,7 @@ class Main(object):
                     game = self.game.run_game(lvl_test1)
                     if not game:
                         continue
-                    self.game.display_score()
+                    gatekeeper = self.game.display_score()
                 else:
                     pass
             elif choice == 'Help':
