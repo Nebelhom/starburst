@@ -134,7 +134,7 @@ class Game(object):
 
             pygame.display.flip()
 
-    def display_score(self):
+    def display_score(self, lvl):
         """
         Displays the final score and returns 0 when pressing Esc
         and 1 when pressing Space.
@@ -399,4 +399,4 @@ if __name__ == "__main__":
 
     pygame.display.set_caption('Game Menu')
     gm = Game(screen, BLACK)
-    gm.run_simulation(lvl_test1)
+    gm.run_simulation(lvl_test3)
