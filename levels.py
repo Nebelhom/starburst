@@ -87,6 +87,10 @@ half_score = {
     'speed': 15
 }
 
+#################
+## Test Levels ##
+#################
+
 # Test if Starburst are correctly displayed
 lvl_test0 = {'Game': {
     'sim_time': 4.0,
@@ -98,7 +102,37 @@ lvl_test0 = {'Game': {
         'posx': 100,
         'type': reg_starburst,
         'toc': 1.0,
-    }]
+    },
+    {
+        'angle': 0.5,
+        'posx': 300,
+        'type': reg_starburst,
+        'toc': 1.0,
+    },
+    {
+        'angle': -0.25,
+        'posx': 350,
+        'type': reg_starburst,
+        'toc': 1.0,
+    },
+    {
+        'angle': 0.0,
+        'posx': 110,
+        'type': reg_starburst,
+        'toc': 1.5,
+    },
+    {
+        'angle': -0.33,
+        'posx': 100,
+        'type': reg_starburst,
+        'toc': 2.0,
+    },
+    {
+        'angle': 0.33,
+        'posx': 400,
+        'type': reg_starburst,
+        'toc': 1.0
+        }]
 }
 
 # Test if Collision Detection of Starbursts (and Explosions) work

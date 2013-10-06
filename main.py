@@ -29,8 +29,8 @@ class Main(object):
         self.screen = pygame.display.set_mode((self.width, self.height), 0, 32)
         pygame.display.set_caption(self.caption)
         self.clock = pygame.time.Clock()
-
-    def main(self, lvl):
+        
+    def main(self):
         # Object initialisation
 
         # Main Game
@@ -48,6 +48,7 @@ class Main(object):
             else:
                 choice = self.gm.run()
             if choice == 'Play Highscore':
+                lvl = lvl_test3
                 expl = self.game.display_explanation()
                 if expl == 1:
                     sim = self.game.run_simulation(lvl)
@@ -66,4 +67,4 @@ class Main(object):
 
 if __name__ == '__main__':
     game = Main()
-    game.main(lvl_test3)
+    game.main()

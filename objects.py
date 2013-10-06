@@ -246,7 +246,7 @@ class Explosion(MovingObject):
 class Detonator(object):
     """Detonators in the Game. Will become Explosion afterwards."""
     def __init__(self, screen, (pos_x, pos_y), (width, height)=(10, 10),
-                 color=RED, explosion_size=30):
+                 color=RED, explosion_size=50):
         self.screen = screen
         self.position = (pos_x, pos_y)
         self.x, self.y = pos_x, pos_y
