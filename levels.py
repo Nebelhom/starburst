@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from objects import *
-from settings import DIMENSIONS, WHITE, BLACK, BLUE, GREEN, RED, PURPLE
+from constants import DIMENSIONS, WHITE, BLACK, BLUE, GREEN, RED, PURPLE
 
 """
 Moving Objects
@@ -210,6 +210,22 @@ lvl_test3 = {'Game': {
             'angle': -0.25,
             'posx': 450,
             'type': half_score,
+            'toc': 1.0,
+        }
+    ]
+}
+
+# Test if conversion posx works
+# in width = 640 a quarter is 160
+lvl_test4 = {'Game': {
+    'sim_time': 4.0,
+    'num_charges': 0,
+},
+    'MovingObjects': [
+        {
+            'angle': 0.0,
+            'posx': 0.25,
+            'type': reg_starburst,
             'toc': 1.0,
         }
     ]

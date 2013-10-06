@@ -38,7 +38,7 @@ import pygame
 from pygame.locals import *
 
 from levels import *
-from settings import CONVERSIONS, DIFFICULTY, BLACK, BLUE, RED, WHITE
+from constants import CONVERSIONS, DIFFICULTY, WIDTH, HEIGHT, BLACK, BLUE, RED, WHITE
 
 pygame.init()
 
@@ -258,7 +258,7 @@ class Game(object):
                 mo['type']['score'],
                 mo['toc'],
                 self.screen,
-                (mo['posx'], self.bs),
+                (mo['posx'] * WIDTH, self.bs),
                 mo['angle'],
                 mo['type']['size'],
                 mo['type']['speed'],

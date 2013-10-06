@@ -2,7 +2,7 @@
 
 import math
 
-DIMENSIONS = (640, 480)
+DIMENSIONS = WIDTH, HEIGHT = (640, 480)
 
 #GRAVITY = 10  # m per s
 GRAVITY = GRAVITY_DIR, GRAVITY_STR = (math.pi, 10)
