@@ -2,7 +2,7 @@
 import math
 import pygame
 
-from settings import GRAVITY, GRAVITY_DIR, GRAVITY_STR, BLACK, GREEN, RED, WHITE
+from constants import GRAVITY, GRAVITY_DIR, GRAVITY_STR, BLACK, GREEN, RED, WHITE
 
 pygame.init()
 

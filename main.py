@@ -12,7 +12,7 @@ from pygame.locals import *
 from game import Game
 from gameMenu import GameMenu
 from levels import *
-from settings import DIFFICULTY, DIMENSIONS, BLACK, RED, WHITE
+from constants import DIFFICULTY, DIMENSIONS, BLACK, RED, WHITE
 
 pygame.init()
 
@@ -48,7 +48,7 @@ class Main(object):
             else:
                 choice = self.gm.run()
             if choice == 'Play Highscore':
-                lvl = lvl_test3
+                lvl = lvl_test4
                 expl = self.game.display_explanation()
                 if expl == 1:
                     sim = self.game.run_simulation(lvl)
