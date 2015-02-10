@@ -3,9 +3,10 @@
 import sys
 import pygame
 
-from settings import BLACK, RED, WHITE
+from constants import BLACK, RED, WHITE
 
 pygame.init()
+
 
 class MenuItem(pygame.font.Font):
     def __init__(self, text, font=None, font_size=30,
@@ -25,8 +26,8 @@ class MenuItem(pygame.font.Font):
 
     def is_mouse_selection(self, (posx, posy)):
         if (posx >= self.pos_x and posx <= self.pos_x + self.width) and \
-            (posy >= self.pos_y and posy <= self.pos_y + self.height):
-                return True
+                (posy >= self.pos_y and posy <= self.pos_y + self.height):
+            return True
         return False
 
     def set_position(self, x, y):
